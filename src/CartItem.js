@@ -13,15 +13,15 @@ class CartItem extends React.Component{
     }
 
     increaseQty = ()=>{
-        this.state.qty++;
+        this.setState({qty : this.state.qty + 1});
     }
 
     decreaseQty = ()=>{
-        this.state.qty--;
+        this.setState({qty : this.state.qty - 1});
     }
 
     deleteQty = ()=>{
-        this.state.qty = 0;
+        this.setState({qty : 0});
     }
 
     render(){
