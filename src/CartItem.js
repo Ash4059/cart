@@ -13,23 +13,23 @@ class CartItem extends React.Component{
     }
 
     increaseQty = ()=>{
-        this.setState({qty : this.state.qty + 1});
+        this.setState((previousState)=>{ return { qty : previousState.qty + 1}});
     }
 
     decreaseQty = ()=>{
-        this.setState({qty : this.state.qty - 1});
+        this.setState((previousState)=>{ if(previousState.qty) return { qty : previousState.qty - 1}});
     }
 
     deleteQty = ()=>{
         this.setState({qty : 0});
-    }
+    } 
 
     render(){
         const {price,title,qty,img} = this.state;
         return(
             <div className="cart-item">
                 <div className="left-block">
-                    <img style={styles.image} alt="cart" />
+                    <img style={styles.image} alt="cart" src="https://d2d22nphq0yz8t.cloudfront.net/88e6cc4b-eaa1-4053-af65-563d88ba8b26/https://media.croma.com/image/upload/v1662439543/Croma%20Assets/Communication/Mobiles/Images/248910_2_pt4gfr.png/mxw_2048,s_webp,f_auto" />
                 </div>
                 <div className="right-block">
                     <div style={{fontSize:25}}>{title}</div>
