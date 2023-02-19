@@ -1,37 +1,18 @@
 import React from "react";
 import Cart from "./Cart";
 import Navbar from "./Navbar";
+import { getFirestore, collection, onSnapshot, query } from 'firebase/firestore';
+import db from './firebase';
 
 class App extends React.Component {
 
   constructor(){
     super();
     this.state = {
-        products:[
-            {
-                price: 99,
-                title: "Watch",
-                qty: 3,
-                img: "https://www.androidcentral.com/sites/androidcentral.com/files/styles/large/public/article_images/2019/02/samsung-gear-sport-collection.png?itok=6tjfgm_B",
-                id: 1
-            },
-            {
-                price: 999,
-                title: "Mobile phone",
-                qty: 10,
-                img: "https://d2d22nphq0yz8t.cloudfront.net/88e6cc4b-eaa1-4053-af65-563d88ba8b26/https://media.croma.com/image/upload/v1662439543/Croma%20Assets/Communication/Mobiles/Images/248910_2_pt4gfr.png/mxw_2048,s_webp,f_auto",
-                id: 2
-            },
-            {
-                price: 1999,
-                title: "Laptop",
-                qty: 2,
-                img: "https://th.bing.com/th/id/OIP.0gujFK-r2VTYB11343WBIgHaHa?w=177&h=180&c=7&r=0&o=5&pid=1.7",
-                id: 3
-            }
-        ]
-      }
-    }
+        products: [],
+        loading: true
+      };
+  }
 
   handleIncreaseQty = (product) => {
       const products = this.state.products;
@@ -62,6 +43,7 @@ class App extends React.Component {
 
   getCartCount = () => {
     const products = this.state.products;
+    // console.log(products);
     let count = 0;
     products.forEach((product)=>{
       count += product.qty;
@@ -78,21 +60,46 @@ class App extends React.Component {
     return price;
   }
 
-  render(){
-    const products = this.state.products;
-    return (
-      <div className="App">
-        <Navbar count = {this.getCartCount()} />
-        <Cart
-          products={products} 
-          onIncreaseQty = {this.handleIncreaseQty} 
-          onDecreaseQty = {this.handleDecraseQty} 
-          onDeleteQty = { this.handleDeleteQty }
-        />
-        <div>TOTAL: {this.getCartTotal()}</div>
-      </div>
-    );
+  componentDidMount(){
+    try {
+      const products = collection(db, 'products');
+      const q = query(products);
+      onSnapshot(q, docsSnap => {
+        const productList = [];
+        docsSnap.forEach(doc => {
+          productList.push(doc.data());
+        })
+        this.setState({
+          products : productList,
+          loading : false
+        })
+      },error=>{
+        console.log(error);
+      });
+      
+    } catch (error) {
+      console.error("Error:", error);
+      console.error("Error code:", error.code);
+      console.error("Error message:", error.message);
+    }
   }
+
+  render(){
+    const {products,loading} = this.state;
+      return (
+        <div className="App">
+          <Navbar count = {this.getCartCount()} />
+          <Cart
+            products={products} 
+            onIncreaseQty = {this.handleIncreaseQty} 
+            onDecreaseQty = {this.handleDecraseQty} 
+            onDeleteQty = { this.handleDeleteQty }
+          />
+          <div>TOTAL: {this.getCartTotal()}</div>
+          {loading && <h1>Loading Products...</h1>}
+        </div>
+      );
+    }
 }
 
 export default App;
